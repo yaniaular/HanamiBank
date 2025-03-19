@@ -10,11 +10,23 @@ import SwiftUI
 struct LoginView: View {
     @State private var username = ""
     @State private var password = ""
-    @State private var isLoggedIn = false
     @State private var showError = false
+    @AppStorage(Constants.userIDKey) private var userID: Int?
+
+    // Binding computado para navigationDestination
+    private var isLoggedIn: Binding<Bool> {
+        Binding(
+            get: { userID != nil }, // true si userID no es nil
+            set: { newValue in
+                if !newValue {
+                    userID = nil // Si se establece en false, elimina el userID
+                }
+            }
+        )
+    }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 20) {
                 TextField("Username", text: $username)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -25,9 +37,9 @@ struct LoginView: View {
                     .padding(.horizontal, 20)
 
                 Button("Login") {
-                    BankService.shared.login(username: username, password: password) { success in
-                        if success {
-                            isLoggedIn = true
+                    BankService.shared.login(username: username, password: password.lowercased()) { success, user in
+                        if success, let user = user {
+                            userID = user.id // Guardar el user_id en @AppStorage
                         } else {
                             showError = true
                         }
@@ -42,9 +54,15 @@ struct LoginView: View {
                     Text("Invalid username or password")
                         .foregroundColor(.red)
                 }
-
-                NavigationLink("", destination: BalanceView(), isActive: $isLoggedIn)
+            }
+            .navigationDestination(isPresented: isLoggedIn) {
+                BankBalanceView()
             }
         }
     }
 }
+
+#Preview {
+    LoginView()
+}
+
