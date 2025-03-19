@@ -8,6 +8,7 @@ struct LoginView: View {
     // Datos guardados en AppStorage
     @AppStorage(Constants.userIDKey) private var userID: Int?
     @AppStorage(Constants.userNameKey) private var userName: String?
+    @AppStorage(Constants.accountIDKey) private var selectedAccountID: Int?
     
     private var loginService = LoginService()
 
@@ -31,7 +32,7 @@ struct LoginView: View {
                         }
                         
                         Button("Cerrar Sesión") {
-                            loginService.logout(userID: &userID, userName: &userName)
+                            loginService.logout(userID: &userID, userName: &userName, accountID: &selectedAccountID)
                         }
                         .padding()
                         .background(Color.red)

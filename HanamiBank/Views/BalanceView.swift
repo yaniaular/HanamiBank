@@ -10,19 +10,16 @@ import SwiftUI
 struct BankBalanceView: View {
     @State private var accounts: [Account] = [] // User's account with balance
     @State private var savings: [Saving] = [] // User's savings
+    @AppStorage(Constants.accountIDKey) private var selectedAccountID: Int?
 
-    @State private var navigateToTransactions = false // Estado para controlar la navegación
-    
+
     // Datos guardados en AppStorage
     @AppStorage(Constants.userIDKey) private var userID: Int?
     @AppStorage(Constants.userNameKey) private var userName: String?
-    
-    private var loginService = LoginService()
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                
                 VStack(spacing: 20) {
                     // Accounts Section
                     Section(header: Text("Accounts").font(.title).bold()) {
@@ -32,11 +29,11 @@ struct BankBalanceView: View {
                                     .font(.headline)
                                 Text("Balance: $\(account.balance, specifier: "%.2f")")
                                     .font(.title2)
-                
+
                                 HStack {
                                     Button(action: {
                                         // Navegar a transacciones
-                                        print("Go to Transactions for Account \(account.id)")
+                                        selectedAccountID = account.id
                                     }) {
                                         Text("View Transactions")
                                             .frame(maxWidth: .infinity)
@@ -45,7 +42,7 @@ struct BankBalanceView: View {
                                             .foregroundColor(.white)
                                             .cornerRadius(12)
                                     }
-                                    
+
                                     Button(action: {
                                         // Navegar a la información de la cuenta
                                         print("Go to Account Information for Account \(account.id)")
@@ -124,9 +121,14 @@ struct BankBalanceView: View {
                     }
                 }
             }
-            //.navigationDestination(isPresented: $navigateToTransactions) {
-                //TransactionView() // Navegar a TransactionView
-            //}
+            .navigationDestination(isPresented: Binding(
+                get: { selectedAccountID != nil },
+                set: { if !$0 { selectedAccountID = nil } }
+            )) {
+                if selectedAccountID != nil {
+                    TransactionView()
+                }
+            }
         }
     }
 }

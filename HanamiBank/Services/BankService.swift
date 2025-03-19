@@ -75,4 +75,18 @@ class BankService {
         }.resume()
     }
     
+    func getAllTransactions(account_id: Int, completion: @escaping ([Transaction]?) -> Void) {
+        let url = baseURL!.appendingPathComponent("/api/accounts/\(account_id)/transactions") // Consultar todas las cuentas del usuario
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let data = data {
+                let response = try? JSONDecoder().decode(TransactionResponse.self, from: data)
+                DispatchQueue.main.async {
+                    completion(response?.transactions)
+                }
+            } else {
+                completion(nil)
+            }
+        }.resume()
+    }
+    
 }

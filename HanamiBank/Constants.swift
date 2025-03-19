@@ -11,4 +11,5 @@ import SwiftUI
 struct Constants {
     static let userIDKey = "user_id"
     static let userNameKey = "username"
+    static let accountIDKey = "account_id"
 }
