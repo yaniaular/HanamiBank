@@ -61,4 +61,18 @@ class BankService {
         }.resume()
     }
 
+    func getAllSavings(user_id: Int, completion: @escaping ([Saving]?) -> Void) {
+        let url = baseURL!.appendingPathComponent("/api/users/\(user_id)/savings") // Consultar todas las cuentas del usuario
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let data = data {
+                let response = try? JSONDecoder().decode(SavingResponse.self, from: data)
+                DispatchQueue.main.async {
+                    completion(response?.savings)
+                }
+            } else {
+                completion(nil)
+            }
+        }.resume()
+    }
+    
 }

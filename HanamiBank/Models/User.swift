@@ -18,10 +18,10 @@ struct User: Codable {
 // Modelo para una cuenta individual
 struct Account: Codable, Identifiable {
     let id: Int
+    let created_at: String
     let user_id: Int
     let account_number: String
     let balance: Double
-    let created_at: String
 }
 
 // Modelo para la respuesta de la API
@@ -30,7 +30,13 @@ struct BalanceResponse: Codable {
 }
 
 struct Saving: Codable, Identifiable {
-    let id: UUID
+    let id: Int
+    let created_at: String
+    let user_id: Int
     let name: String
     let amount: Double
+}
+
+struct SavingResponse: Codable {
+    let savings: [Saving]
 }
