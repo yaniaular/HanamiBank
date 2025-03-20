@@ -51,7 +51,7 @@ class BankService {
         let url = baseURL!.appendingPathComponent("/api/users/\(user_id)/accounts") // Consultar todas las cuentas del usuario
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let data = data {
-                let response = try? JSONDecoder().decode(BalanceResponse.self, from: data)
+                let response = try? JSONDecoder().decode(AccountResponse.self, from: data)
                 DispatchQueue.main.async {
                     completion(response?.accounts)
                 }
@@ -74,7 +74,7 @@ class BankService {
             }
         }.resume()
     }
-    
+
     func getAllTransactions(account_id: Int, completion: @escaping ([Transaction]?) -> Void) {
         let url = baseURL!.appendingPathComponent("/api/accounts/\(account_id)/transactions") // Consultar todas las cuentas del usuario
         URLSession.shared.dataTask(with: url) { data, response, error in
@@ -88,5 +88,5 @@ class BankService {
             }
         }.resume()
     }
-    
+
 }

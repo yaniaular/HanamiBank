@@ -19,7 +19,6 @@ class LoginService {
             }
         }
     }
-    
     // Función para cerrar sesión
     func logout(userID: inout Int?, userName: inout String?, accountID: inout Int?) {
         // Limpiar datos guardados en AppStorage
