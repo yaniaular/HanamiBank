@@ -17,7 +17,6 @@ struct BackgroundImageView: View {
     }
 }
 
-
 struct ContentView: View {
     @State private var username = ""
     @State private var password = ""

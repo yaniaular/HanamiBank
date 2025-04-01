@@ -12,10 +12,11 @@ struct TransferView: View {
     @State private var clabe: String = ""
     @State private var amount: String = ""
     @State private var isLoading = false
+    @State private var infoMessage: String?
     @State private var errorMessage: String?
     @State private var showSuccess = false
     @AppStorage(Constants.accountIDKey) private var selectedAccountID: Int?
-    @AppStorage(Constants.accountClabeKey) private var clabeAccount: String?
+    @AppStorage(Constants.accountClabeKey) private var clabeAccount: String = ""
     @AppStorage(Constants.accountSaldoKey) private var saldoAccount: Double?
     @State private var account: Account?
     
@@ -23,10 +24,8 @@ struct TransferView: View {
         NavigationView {
             Form {
                 Section(header: Text("Cuenta origen")) {
-                    if let clabe = clabeAccount {
-                        Text(clabe)
+                        Text(clabeAccount)
                             .font(.body.monospaced())
-                    }
                 }
                 Section(header: Text("Saldo")) {
                     if let saldo = saldoAccount {
@@ -47,6 +46,13 @@ struct TransferView: View {
                     Section {
                         Text(error)
                             .foregroundColor(.red)
+                    }
+                }
+
+                if let info = infoMessage {
+                    Section {
+                        Text(info)
+                            .foregroundColor(.green)
                     }
                 }
                 
@@ -103,22 +109,22 @@ struct TransferView: View {
         isLoading = true
         errorMessage = nil
         
-        /*BankService.shared.doTransfer(
-            from: sourceAccount.account_number,
-            to: clabe,
+        BankService.shared.doTransfer(
+            sourceAccountNumber: clabeAccount,
+            destinationAccountNumber: clabe,
             amount: amountValue
-        ) { success, message in
-            DispatchQueue.main.async {
+        ) { success, response, errorMessage in
+            if success, let response = response {
+                infoMessage = "Transferencia exitosa!"
+                saldoAccount = response.new_source_balance
+                print("New source balance: \(response.new_source_balance)")
+                print("New destination balance: \(response.new_destination_balance)")
                 isLoading = false
-                if success {
-                    showSuccess = true
-                } else {
-                    errorMessage = message ?? "Error desconocido al transferir"
-                }
+            } else {
+                print("Transfer failed: \(errorMessage ?? "Unknown error")")
             }
-        }*/
-        
-        
+        }
+
     }
 }
 

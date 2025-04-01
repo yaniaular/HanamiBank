@@ -102,5 +102,83 @@ class BankService {
             }
         }.resume()
     }
+    
+    func doTransfer(sourceAccountNumber: String,
+                      destinationAccountNumber: String,
+                      amount: Double,
+                      completion: @escaping (Bool, TransferResponse?, String?) -> Void) {
+        
+        guard let url = baseURL?.appendingPathComponent("/api/transfers") else {
+            completion(false, nil, "Invalid URL")
+            return
+        }
+
+        // Create request body
+        let body: [String: Any] = [
+            "source_account_number": sourceAccountNumber,
+            "destination_account_number": destinationAccountNumber,
+            "amount": amount
+        ]
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        } catch {
+            completion(false, nil, "Failed to encode request data")
+            return
+        }
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    completion(false, nil, "Network error: \(error.localizedDescription)")
+                }
+                return
+            }
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                DispatchQueue.main.async {
+                    completion(false, nil, "Invalid server response")
+                }
+                return
+            }
+
+            guard let data = data else {
+                DispatchQueue.main.async {
+                    completion(false, nil, "No data received")
+                }
+                return
+            }
+
+            // Check for successful status code
+            if (200...299).contains(httpResponse.statusCode) {
+                do {
+                    let transferResponse = try JSONDecoder().decode(TransferResponse.self, from: data)
+                    DispatchQueue.main.async {
+                        completion(true, transferResponse, nil)
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        completion(false, nil, "Failed to decode response: \(error.localizedDescription)")
+                    }
+                }
+            } else {
+                // Handle server errors
+                if let errorResponse = try? JSONDecoder().decode([String: String].self, from: data),
+                   let errorMessage = errorResponse["error"] {
+                    DispatchQueue.main.async {
+                        completion(false, nil, errorMessage)
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        completion(false, nil, "Transfer failed with status code: \(httpResponse.statusCode)")
+                    }
+                }
+            }
+        }.resume()
+    }
 
 }

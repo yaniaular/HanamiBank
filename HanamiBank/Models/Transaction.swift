@@ -20,3 +20,11 @@ struct Transaction: Codable, Identifiable {
 struct TransactionResponse: Codable {
     let transactions: [Transaction]
 }
+
+struct TransferResponse: Codable {
+    let message: String
+    let new_source_balance: Double
+    let new_destination_balance: Double
+    let source_account_number: String
+    let destination_account_number: String
+}
