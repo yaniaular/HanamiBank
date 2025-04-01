@@ -86,6 +86,7 @@ struct ManageSavingView: View {
                     - Nuevo saldo cuenta: \(response.newAccountBalance)
                     - Nuevo saldo ahorro: \(response.newSavingBalance)
                     """)
+                    NotificationCenter.default.post(name: .shouldRefreshDashboard, object: nil)
                     dismiss()
                     
                 case .failure(let error):

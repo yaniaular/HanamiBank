@@ -54,9 +54,7 @@ struct ContentView: View {
                             .font(.headline)
                             .cornerRadius(12)
                             .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
-                            .navigationDestination(isPresented: $navigateToDashboard) {
-                                DashboardView()
-                            }
+
                             
                             // boton para cerrar sesión
                             Button("Cerrar Sesión") {
@@ -112,6 +110,9 @@ struct ContentView: View {
                     }
                 }
                 .padding()
+                .navigationDestination(isPresented: $navigateToDashboard) {
+                    DashboardView()
+                }
             }
         }
     }

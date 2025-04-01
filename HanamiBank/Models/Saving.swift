@@ -43,3 +43,8 @@ enum NetworkError: Error {
     case noData
     case decodingError
 }
+
+// Añade esta extensión para manejar notificaciones
+extension Notification.Name {
+    static let shouldRefreshDashboard = Notification.Name("shouldRefreshDashboard")
+}
