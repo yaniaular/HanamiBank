@@ -8,10 +8,13 @@
 import SwiftUI
 
 struct AccountView: View {
-    @State private var account: Account?
+    @State private var showTransferView = false // Nuevo estado para navegación
     @State private var isLoading = false
     @State private var errorMessage: String?
     @AppStorage(Constants.accountIDKey) private var selectedAccountID: Int?
+    @AppStorage(Constants.accountClabeKey) private var clabeAccount: String?
+    @AppStorage(Constants.accountSaldoKey) private var saldoAccount: Double?
+    @State private var account: Account?
     @State private var showCopiedAlert = false // Nuevo estado para el feedback
     
     var body: some View {
@@ -83,6 +86,23 @@ struct AccountView: View {
                                     .background(Color(.systemBackground))
                                     .cornerRadius(12)
                                     .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+                                    
+                                    // Botón de transferencia
+                                    Button(action: {
+                                        self.clabeAccount = current_account.account_number
+                                        self.saldoAccount = current_account.balance
+                                        self.showTransferView = true
+                                    }) {
+                                        HStack {
+                                            Image(systemName: "arrow.right.arrow.left")
+                                            Text("Realizar Transferencia")
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                    .padding(.top, 20)
+                                    
+                                    
                                 }
                                 .padding()
                             }
@@ -103,6 +123,9 @@ struct AccountView: View {
                 Button("OK", role: .cancel) { }
             } message: {
                 Text("El número de cuenta ha sido copiado al portapapeles")
+            }
+            .sheet(isPresented: $showTransferView) {
+                TransferView()
             }
         }
     }
