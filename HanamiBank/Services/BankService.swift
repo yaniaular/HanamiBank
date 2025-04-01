@@ -226,7 +226,7 @@ class BankService {
         }.resume()
     }
 
-    func createSaving(name: String, targetAmount: Double, completion: @escaping (Bool) -> Void) {
+    func createSaving(name: String, amount: Double, completion: @escaping (Bool) -> Void) {
         guard let url = baseURL?.appendingPathComponent("/api/savings"),
         let userId = userID else {
             completion(false)
@@ -236,7 +236,7 @@ class BankService {
         let body: [String: Any] = [
             "user_id": userId,
             "name": name,
-            "target_amount": targetAmount
+            "amount": amount
         ]
         
         var request = URLRequest(url: url)
