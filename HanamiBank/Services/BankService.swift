@@ -6,10 +6,12 @@
 //
 
 import Foundation
+import SwiftUI
 
 class BankService {
     static let shared = BankService()
     private let baseURL = URL(string: "https://yaniaular.pythonanywhere.com")
+    @AppStorage(Constants.userIDKey) private var userID: Int?
 
     func login(username: String, password: String, completion: @escaping (Bool, User?) -> Void) {
         guard let url = baseURL?.appendingPathComponent("api/users/login") else {
@@ -180,5 +182,75 @@ class BankService {
             }
         }.resume()
     }
+    
+    func manageSaving(action: SavingAction, completion: @escaping (Result<SavingTransactionResponse, Error>) -> Void) {
+        guard let url = baseURL?.appendingPathComponent("/api/savings/transaction") else {
+            completion(.failure(NetworkError.invalidURL))
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        do {
+            request.httpBody = try JSONEncoder().encode(action)
+        } catch {
+            completion(.failure(error))
+            return
+        }
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse,
+                  (200...299).contains(httpResponse.statusCode) else {
+                completion(.failure(NetworkError.invalidResponse))
+                return
+            }
+            
+            guard let data = data else {
+                completion(.failure(NetworkError.noData))
+                return
+            }
+            
+            do {
+                let response = try JSONDecoder().decode(SavingTransactionResponse.self, from: data)
+                completion(.success(response))
+            } catch {
+                completion(.failure(error))
+            }
+        }.resume()
+    }
 
+    func createSaving(name: String, targetAmount: Double, completion: @escaping (Bool) -> Void) {
+        guard let url = baseURL?.appendingPathComponent("/api/savings"),
+        let userId = userID else {
+            completion(false)
+            return
+        }
+        
+        let body: [String: Any] = [
+            "user_id": userId,
+            "name": name,
+            "target_amount": targetAmount
+        ]
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        
+        URLSession.shared.dataTask(with: request) { _, response, error in
+            let success = (error == nil) &&
+                         ((response as? HTTPURLResponse)?.statusCode == 201)
+            DispatchQueue.main.async {
+                completion(success)
+            }
+        }.resume()
+    }
+    
 }

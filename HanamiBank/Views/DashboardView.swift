@@ -59,8 +59,6 @@ struct DashboardView: View {
             .navigationDestination(isPresented: $navigateToViewAccount) {
                 if selectedAccountID != nil {
                     AccountView()
-                    // Aquí puedes navegar a la vista de información de la cuenta
-                    //Text("Información de la cuenta \(accountID)")
                 }
             }
         }
