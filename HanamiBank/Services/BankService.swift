@@ -47,6 +47,20 @@ class BankService {
         }.resume()
     }
 
+    func getAccount(account_id: Int, completion: @escaping (Account?) -> Void) {
+        let url = baseURL!.appendingPathComponent("/api/account/\(account_id)") // Consultar una cuenta
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let data = data {
+                let response = try? JSONDecoder().decode(Account.self, from: data)
+                DispatchQueue.main.async {
+                    completion(response)
+                }
+            } else {
+                completion(nil)
+            }
+        }.resume()
+    }
+    
     func getAllAccounts(user_id: Int, completion: @escaping ([Account]?) -> Void) {
         let url = baseURL!.appendingPathComponent("/api/users/\(user_id)/accounts") // Consultar todas las cuentas del usuario
         URLSession.shared.dataTask(with: url) { data, response, error in

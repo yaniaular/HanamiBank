@@ -13,40 +13,42 @@ struct TransactionView: View {
     @State private var errorMessage: String? // Mensaje de error
     @AppStorage(Constants.accountIDKey) private var selectedAccountID: Int?
 
-
     var body: some View {
-        ScrollView {
-            if isLoading {
-                ProgressView("Cargando transacciones...")
-                    .padding()
-            } else if let errorMessage = errorMessage {
-                Text(errorMessage)
-                    .foregroundColor(.red)
-                    .padding()
-            } else {
-                VStack(spacing: 20) {
-                    ForEach(transactions) { transaction in
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text(transaction.description)
-                                .font(.headline)
-                            Text("Monto: \(transaction.amount, specifier: "%.2f")")
-                                .font(.subheadline)
-                            Text("Tipo: \(transaction.type)")
-                                .font(.caption)
-                            Text("Fecha: \(transaction.created_at)")
-                                .font(.caption)
-                        }
+        ZStack {
+            BackgroundImageView(imageName: "background")
+            ScrollView {
+                if isLoading {
+                    ProgressView("Cargando transacciones...")
                         .padding()
-                        .background(Color.gray.opacity(0.1))
-                        .cornerRadius(12)
+                } else if let errorMessage = errorMessage {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                        .padding()
+                } else {
+                    VStack(spacing: 20) {
+                        ForEach(transactions) { transaction in
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text(transaction.description)
+                                    .font(.headline)
+                                Text("Monto: \(transaction.amount, specifier: "%.2f")")
+                                    .font(.subheadline)
+                                Text("Tipo: \(transaction.type)")
+                                    .font(.caption)
+                                Text("Fecha: \(transaction.created_at)")
+                                    .font(.caption)
+                            }
+                            .padding()
+                            .background(Color.gray.opacity(0.1))
+                            .cornerRadius(12)
+                        }
                     }
+                    .padding()
                 }
-                .padding()
             }
-        }
-        .navigationTitle("Transacciones")
-        .onAppear {
-            fetchTransactions()
+            .navigationTitle("Transacciones")
+            .onAppear {
+                fetchTransactions()
+            }
         }
     }
 

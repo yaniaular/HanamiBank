@@ -19,44 +19,49 @@ struct DashboardView: View {
     @AppStorage(Constants.accountIDKey) private var selectedAccountID: Int?
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                // Sección de cuentas
-                AccountsSection(
-                    accounts: accounts,
-                    navigateToTransaccion: $navigateToTransaccion,
-                    navigateToViewAccount: $navigateToViewAccount
-                )
+        ZStack {
+            BackgroundImageView(imageName: "background")
+            ScrollView {
+                VStack(spacing: 20) {
 
-                // Sección de ahorros
-                SavingsSection(savings: savings)
+                    // Sección de cuentas
+                    AccountsSection(
+                        accounts: accounts,
+                        navigateToTransaccion: $navigateToTransaccion,
+                        navigateToViewAccount: $navigateToViewAccount
+                    )
+
+                    // Sección de ahorros
+                    SavingsSection(savings: savings)
+                }
+                .padding()
             }
-            .padding()
-        }
-        .navigationTitle("Dashboard")
-        .onAppear {
-            if let userID = userID {
-                BankService.shared.getAllAccounts(user_id: userID) { accounts in
-                    if let accounts = accounts {
-                        self.accounts = accounts
+            .navigationTitle("Dashboard")
+            .onAppear {
+                if let userID = userID {
+                    BankService.shared.getAllAccounts(user_id: userID) { accounts in
+                        if let accounts = accounts {
+                            self.accounts = accounts
+                        }
+                    }
+                    BankService.shared.getAllSavings(user_id: userID) { savings in
+                        if let savings = savings {
+                            self.savings = savings
+                        }
                     }
                 }
-                BankService.shared.getAllSavings(user_id: userID) { savings in
-                    if let savings = savings {
-                        self.savings = savings
-                    }
+            }
+            .navigationDestination(isPresented: $navigateToTransaccion) {
+                if selectedAccountID != nil {
+                    TransactionView()
                 }
             }
-        }
-        .navigationDestination(isPresented: $navigateToTransaccion) {
-            if selectedAccountID != nil {
-                TransactionView()
-            }
-        }
-        .navigationDestination(isPresented: $navigateToViewAccount) {
-            if let accountID = selectedAccountID {
-                // Aquí puedes navegar a la vista de información de la cuenta
-                Text("Información de la cuenta \(accountID)")
+            .navigationDestination(isPresented: $navigateToViewAccount) {
+                if selectedAccountID != nil {
+                    AccountView()
+                    // Aquí puedes navegar a la vista de información de la cuenta
+                    //Text("Información de la cuenta \(accountID)")
+                }
             }
         }
     }
